@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/OYE0303/expense-tracker-go/internal/handler"
-	"github.com/OYE0303/expense-tracker-go/internal/model"
+	"github.com/OYE0303/expense-tracker-go/internal/model/maincateg"
 	"github.com/OYE0303/expense-tracker-go/internal/router"
-	"github.com/OYE0303/expense-tracker-go/internal/usecase"
 	"github.com/OYE0303/expense-tracker-go/pkg/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
@@ -22,20 +23,37 @@ func main() {
 		logger.Fatal("Error loading .env file", "error", err)
 	}
 
-	logger.Info("Connecting to database...")
-	mysqlDB, err := newMysqlDB()
-	if err != nil {
-		logger.Fatal("Unable to connect to mysql database", "error", err)
-	}
-	defer mysqlDB.Close()
+	dataType := reflect.TypeOf(maincateg.MainCateg{})
 
-	// Setup model, usecase, and handler
-	model := model.New(mysqlDB)
-	usecase := usecase.New(&model.User, &model.MainCateg, &model.SubCateg, &model.Icon, &model.Transaction)
-	handler := handler.New(&usecase.User, &usecase.MainCateg, &usecase.SubCateg, &usecase.Transaction)
-	if err := initServe(handler); err != nil {
-		logger.Fatal("Unable to start server", "error", err)
+	tagToField := map[string]string{}
+	for i := 0; i < dataType.NumField(); i++ {
+		field := dataType.Field(i)
+		tag := field.Tag.Get("factory")
+		if tag == "" {
+			continue
+		}
+		parts := strings.Split(tag, ",")
+
+		fmt.Println("val", parts[0])
+		fmt.Println("tab", parts[1])
+
+		tagToField[tag] = field.Name
 	}
+
+	// logger.Info("Connecting to database...")
+	// mysqlDB, err := newMysqlDB()
+	// if err != nil {
+	// 	logger.Fatal("Unable to connect to mysql database", "error", err)
+	// }
+	// defer mysqlDB.Close()
+
+	// // Setup model, usecase, and handler
+	// model := model.New(mysqlDB)
+	// usecase := usecase.New(&model.User, &model.MainCateg, &model.SubCateg, &model.Icon, &model.Transaction)
+	// handler := handler.New(&usecase.User, &usecase.MainCateg, &usecase.SubCateg, &usecase.Transaction)
+	// if err := initServe(handler); err != nil {
+	// 	logger.Fatal("Unable to start server", "error", err)
+	// }
 }
 
 func newMysqlDB() (*sql.DB, error) {

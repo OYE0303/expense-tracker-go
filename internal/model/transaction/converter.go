@@ -15,7 +15,7 @@ func cvtToDomainTransaction(t *Transaction, m *maincateg.MainCateg, s *subcateg.
 		SubCateg:  cvtToDomainSubCateg(s),
 		Price:     t.Price,
 		Note:      t.Note,
-		Date:      t.Date,
+		Date:      &t.Date,
 	}
 }
 
@@ -26,7 +26,7 @@ func cvtToModelTransaction(t *domain.Transaction) *Transaction {
 		SubCategID:  t.SubCateg.ID,
 		Price:       t.Price,
 		Note:        t.Note,
-		Date:        t.Date,
+		Date:        *t.Date,
 	}
 }
 
