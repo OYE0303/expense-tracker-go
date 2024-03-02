@@ -231,29 +231,29 @@ func (f *Factory[T]) Reset() {
 }
 
 // WihtOne set one association to the factory value
-func (f *Factory[T]) WithOne(value interface{}) *Factory[T] {
-	typeOfValue := reflect.TypeOf(value)
-	valueOfValue := reflect.ValueOf(value)
+func (f *Factory[T]) WithOne(aaa interface{}) *Factory[T] {
+	typeOfValue := reflect.TypeOf(aaa)
+	valueOfValue := reflect.ValueOf(aaa)
+	name := typeOfValue.Elem().Name()
+	value := reflect.New(typeOfValue.Elem()).Interface()
 
 	if valueOfValue.Kind() != reflect.Ptr {
-		f.errors = append(f.errors, fmt.Errorf("type: %v, value: %v passed to WithOne is not a pointer", typeOfValue.Name(), value))
+		f.errors = append(f.errors, fmt.Errorf("type: %v, value: %v passed to WithOne is not a pointer", typeOfValue.Name(), aaa))
 		return f
 	}
 
-	name := typeOfValue.Elem().Name()
-	v := reflect.New(typeOfValue.Elem()).Interface()
 	if valueOfValue.Elem().Kind() != reflect.Struct {
-		f.errors = append(f.errors, fmt.Errorf("type %v, value: %v passed to WithOne is not a struct", name, v))
+		f.errors = append(f.errors, fmt.Errorf("type %v, value: %v passed to WithOne is not a struct", name, value))
 		return f
 	}
 
 	if _, ok := f.tagToInfo[name]; !ok {
-		f.errors = append(f.errors, fmt.Errorf("type %v, value: %v passed to WithOne is not found at tag", name, v))
+		f.errors = append(f.errors, fmt.Errorf("type %v, value: %v passed to WithOne is not found at tag", name, value))
 		return f
 	}
 
-	setNonZeroValues(value, f.index+1)
-	f.associations[name] = []interface{}{value}
+	setNonZeroValues(aaa, f.index+1)
+	f.associations[name] = []interface{}{aaa}
 	f.index++
 	return f
 }

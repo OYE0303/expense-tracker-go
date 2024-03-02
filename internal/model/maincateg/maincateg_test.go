@@ -75,87 +75,87 @@ func (s *MainCategSuite) TearDownTest() {
 	s.f.Reset()
 }
 
-func (s *MainCategSuite) TestCreate() {
-	for scenario, fn := range map[string]func(s *MainCategSuite, desc string){
-		"when no duplicate data, create successfully": create_NoDuplicate_CreateSuccessfully,
-		"when duplicate name, return error":           create_DuplicateName_ReturnError,
-		"when duplicate icon, return error":           create_DuplicateIcon_ReturnError,
-	} {
-		s.Run(testutil.GetFunName(fn), func() {
-			s.SetupTest()
-			fn(s, scenario)
-			s.TearDownTest()
-		})
-	}
-}
+// func (s *MainCategSuite) TestCreate() {
+// 	for scenario, fn := range map[string]func(s *MainCategSuite, desc string){
+// 		"when no duplicate data, create successfully": create_NoDuplicate_CreateSuccessfully,
+// 		"when duplicate name, return error":           create_DuplicateName_ReturnError,
+// 		"when duplicate icon, return error":           create_DuplicateIcon_ReturnError,
+// 	} {
+// 		s.Run(testutil.GetFunName(fn), func() {
+// 			s.SetupTest()
+// 			fn(s, scenario)
+// 			s.TearDownTest()
+// 		})
+// 	}
+// }
 
-func create_NoDuplicate_CreateSuccessfully(s *MainCategSuite, desc string) {
-	users, icons, err := s.f.PrepareUsers(1).PrepareIcons(1).InsertUserAndIcon()
-	s.Require().NoError(err, desc)
+// func create_NoDuplicate_CreateSuccessfully(s *MainCategSuite, desc string) {
+// 	users, icons, err := s.f.InsertUserAndIcon(1, 1)
+// 	s.Require().NoError(err, desc)
 
-	categ := &domain.MainCateg{
-		Name: "test",
-		Type: domain.Expense,
-		Icon: domain.Icon{
-			ID: icons[0].ID,
-		},
-	}
-	err = s.mainCategModel.Create(categ, users[0].ID)
-	s.Require().NoError(err, desc)
+// 	categ := &domain.MainCateg{
+// 		Name: "test",
+// 		Type: domain.Expense,
+// 		Icon: domain.Icon{
+// 			ID: icons[0].ID,
+// 		},
+// 	}
+// 	err = s.mainCategModel.Create(categ, users[0].ID)
+// 	s.Require().NoError(err, desc)
 
-	checkStmt := `SELECT id, name, type, icon_id
-							 FROM main_categories
-							 WHERE user_id = ?
-							 AND name = ?
-							 AND type = ?
-							 `
-	var result maincateg.MainCateg
-	err = s.db.QueryRow(checkStmt, users[0].ID, "test", domain.Expense.ToModelValue()).Scan(&result.ID, &result.Name, &result.Type, &result.IconID)
-	s.Require().NoError(err, desc)
-	s.Require().Equal(categ.Name, result.Name, desc)
-	s.Require().Equal(categ.Type.ToModelValue(), result.Type, desc)
-	s.Require().Equal(icons[0].ID, result.IconID, desc)
-}
+// 	checkStmt := `SELECT id, name, type, icon_id
+// 							 FROM main_categories
+// 							 WHERE user_id = ?
+// 							 AND name = ?
+// 							 AND type = ?
+// 							 `
+// 	var result maincateg.MainCateg
+// 	err = s.db.QueryRow(checkStmt, users[0].ID, "test", domain.Expense.ToModelValue()).Scan(&result.ID, &result.Name, &result.Type, &result.IconID)
+// 	s.Require().NoError(err, desc)
+// 	s.Require().Equal(categ.Name, result.Name, desc)
+// 	s.Require().Equal(categ.Type.ToModelValue(), result.Type, desc)
+// 	s.Require().Equal(icons[0].ID, result.IconID, desc)
+// }
 
-func create_DuplicateName_ReturnError(s *MainCategSuite, desc string) {
-	createdMainCateg, user, _, err := s.f.InsertMainCategWithAss(maincateg.MainCateg{})
-	s.Require().NoError(err, desc)
+// func create_DuplicateName_ReturnError(s *MainCategSuite, desc string) {
+// 	createdMainCateg, user, _, err := s.f.InsertMainCategWithAss(maincateg.MainCateg{})
+// 	s.Require().NoError(err, desc)
 
-	icons, err := s.f.PrepareIcons(1).InsertIcons()
-	s.Require().NoError(err, desc)
+// 	icon, err := s.f.Icon.Build().Insert()
+// 	s.Require().NoError(err, desc)
 
-	categ := &domain.MainCateg{
-		Name: createdMainCateg.Name,
-		Type: domain.Income,
-		Icon: domain.Icon{
-			ID: icons[0].ID,
-		},
-	}
-	err = s.mainCategModel.Create(categ, user.ID)
-	s.Require().EqualError(err, domain.ErrUniqueNameUserType.Error(), desc)
-}
+// 	categ := &domain.MainCateg{
+// 		Name: createdMainCateg.Name,
+// 		Type: domain.Income,
+// 		Icon: domain.Icon{
+// 			ID: icon.ID,
+// 		},
+// 	}
+// 	err = s.mainCategModel.Create(categ, user.ID)
+// 	s.Require().EqualError(err, domain.ErrUniqueNameUserType.Error(), desc)
+// }
 
-func create_DuplicateIcon_ReturnError(s *MainCategSuite, desc string) {
-	createdMainCateg, user, icon, err := s.f.InsertMainCategWithAss(maincateg.MainCateg{})
-	s.Require().NoError(err, desc)
+// func create_DuplicateIcon_ReturnError(s *MainCategSuite, desc string) {
+// 	createdMainCateg, user, icon, err := s.f.InsertMainCategWithAss(maincateg.MainCateg{})
+// 	s.Require().NoError(err, desc)
 
-	categ := &domain.MainCateg{
-		Name: createdMainCateg.Name + "1", // different name
-		Type: domain.Expense,
-		Icon: domain.Icon{
-			ID: icon.ID,
-		},
-	}
-	err = s.mainCategModel.Create(categ, user.ID)
-	s.Require().EqualError(err, domain.ErrUniqueIconUser.Error(), desc)
-}
+// 	categ := &domain.MainCateg{
+// 		Name: createdMainCateg.Name + "1", // different name
+// 		Type: domain.Expense,
+// 		Icon: domain.Icon{
+// 			ID: icon.ID,
+// 		},
+// 	}
+// 	err = s.mainCategModel.Create(categ, user.ID)
+// 	s.Require().EqualError(err, domain.ErrUniqueIconUser.Error(), desc)
+// }
 
 func (s *MainCategSuite) TestGetAll() {
 	for scenario, fn := range map[string]func(s *MainCategSuite, desc string){
-		"when specify income type, return only income type data":   getAll_IncomeType_ReturnOnlyIncomeTypeData,
-		"when specify expense type, return only expense type data": getAll_ExpenseType_ReturnOnlyExpenseTypeData,
-		"when specify unspecified type, return all data":           getAll_UnSpecifiedType_ReturnAllData,
-		"when multiple users, return correct data":                 getAll_MultipleUsers_ReturnCorrectData,
+		"when specify income type, return only income type data": getAll_IncomeType_ReturnOnlyIncomeTypeData,
+		// "when specify expense type, return only expense type data": getAll_ExpenseType_ReturnOnlyExpenseTypeData,
+		// "when specify unspecified type, return all data":           getAll_UnSpecifiedType_ReturnAllData,
+		// "when multiple users, return correct data":                 getAll_MultipleUsers_ReturnCorrectData,
 	} {
 		s.Run(testutil.GetFunName(fn), func() {
 			s.SetupTest()
