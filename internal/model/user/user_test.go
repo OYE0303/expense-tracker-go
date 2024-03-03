@@ -9,6 +9,7 @@ import (
 	"github.com/OYE0303/expense-tracker-go/internal/usecase/interfaces"
 	"github.com/OYE0303/expense-tracker-go/pkg/dockerutil"
 	"github.com/OYE0303/expense-tracker-go/pkg/testutil"
+	"github.com/OYE0303/expense-tracker-go/pkg/testutil/efactory"
 	"github.com/golang-migrate/migrate"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,7 +18,7 @@ type UserSuite struct {
 	suite.Suite
 	db      *sql.DB
 	migrate *migrate.Migrate
-	f       *testutil.Factory[user.User]
+	f       *efactory.Factory[user.User]
 	model   interfaces.UserModel
 }
 
@@ -29,9 +30,14 @@ func (s *UserSuite) SetupSuite() {
 	port := dockerutil.RunDocker()
 	db, migrate := testutil.ConnToDB(port)
 	s.model = user.NewUserModel(db)
-	s.f = testutil.NewFactory(db, user.User{}, user.Blueprint, user.Inserter)
 	s.db = db
 	s.migrate = migrate
+	s.f = efactory.New(user.User{}).SetConfig(efactory.Config[user.User]{
+		DB: &efactory.SQLDB{
+			DB: db,
+		},
+		TableName: "users",
+	})
 }
 
 func (s *UserSuite) TearDownSuite() {
