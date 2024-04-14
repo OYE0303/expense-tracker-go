@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/OYE0303/expense-tracker-go/internal/domain"
@@ -244,4 +245,29 @@ func genMonthlyLineChartData(dateToData domain.DateToChartData, timeRangeType do
 		Labels:   labels,
 		Datasets: datasets,
 	}
+}
+
+// func genEncodedNextKey(decodedNextKey map[string]string, lastTran domain.Transaction) (string, error) {
+// 	rawNextKey := ""
+// 	for key := range decodedNextKey {
+// 		val := getFieldValue(lastTran, key)
+// 		if val == nil {
+// 			return "", domain.ErrEncodeNonExistField
+// 		}
+
+// 		rawNextKey += key + ":" + val.(string) + ","
+// 	}
+
+// 	encodedNextKey
+
+// 	return rawNextKey, nil
+// }
+
+func getFieldValue(obj interface{}, fieldName string) interface{} {
+	v := reflect.ValueOf(obj).Elem()
+	field := v.FieldByName(fieldName)
+	if !field.IsValid() {
+		return nil
+	}
+	return field.Interface()
 }

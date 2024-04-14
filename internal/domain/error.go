@@ -44,4 +44,7 @@ var (
 
 	// transaction data not found error
 	ErrTransactionDataNotFound = errors.New("transaction data not found")
+
+	// encode not exist field error
+	ErrEncodeNonExistField = errors.New("encode non exist field")
 )

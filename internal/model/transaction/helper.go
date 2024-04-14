@@ -41,7 +41,7 @@ func getAllQStmt(opt domain.GetTransOpt) string {
 		qStmt += ")"
 	}
 
-	if opt.Cursor.NextKey != 0 {
+	if opt.Cursor.NextKey != "" {
 		qStmt += " AND t.id < ?"
 	}
 
@@ -80,7 +80,7 @@ func getAllArgs(opt domain.GetTransOpt, userID int64) []interface{} {
 		}
 	}
 
-	if opt.Cursor.NextKey != 0 {
+	if opt.Cursor.NextKey != "" {
 		args = append(args, opt.Cursor.NextKey)
 	}
 
